@@ -12,7 +12,7 @@ use crate::hass_mqtt::switch::CapabilitySwitch;
 use crate::hass_mqtt::work_mode::ParsedWorkMode;
 use crate::platform_api::{DeviceCapability, DeviceCapabilityKind, DeviceType};
 use crate::service::device::Device as ServiceDevice;
-use crate::service::hass::{availability_topic, oneclick_topic, purge_cache_topic};
+use crate::service::hass::{availability_topic, oneclick_topic, diys_topic, purge_cache_topic};
 use crate::service::state::StateHandle;
 use crate::version_info::govee_version;
 use anyhow::Context;
