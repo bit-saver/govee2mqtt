@@ -232,6 +232,10 @@ pub fn purge_cache_topic() -> String {
     "gv2mqtt/purge-caches".to_string()
 }
 
+pub fn diys_topic() -> String {
+    "gv2mqtt/diys".to_string()
+}
+
 #[derive(Deserialize)]
 pub struct IdParameter {
     pub id: String,
@@ -431,6 +435,27 @@ async fn mqtt_oneclick(
     iot.activate_one_click(&item).await
 }
 
+async fn mqtt_diys(
+    Payload(json): Payload<String>,
+    State(state): State<StateHandle>,
+) -> anyhow::Result<()> {
+    log::info!("mqtt_diys: {json}");
+
+    let undoc = state
+        .get_undoc_client()
+        .await
+        .ok_or_else(|| anyhow::anyhow!("Undoc API client is not available"))?;
+
+    let item = from_json(json)?;
+
+    let iot = state
+        .get_iot_client()
+        .await
+        .ok_or_else(|| anyhow::anyhow!("AWS IoT client is not available"))?;
+
+    iot.activate_one_click(&item).await
+}
+
 #[derive(Deserialize)]
 struct IdAndInst {
     id: String,
@@ -534,6 +559,7 @@ async fn run_mqtt_loop(
             .await?;
 
         router.route(oneclick_topic(), mqtt_oneclick).await?;
+        router.route(diys_topic(), mqtt_diys).await?;
         router.route(purge_cache_topic(), mqtt_purge_caches).await?;
         router
             .route(
