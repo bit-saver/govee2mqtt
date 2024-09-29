@@ -448,12 +448,34 @@ async fn mqtt_diys(
 
     let item = from_json(json)?;
 
+    let mut result = vec![];
+
+    for oc in item.one_clicks {
+        if oc.iot_rules.is_empty() {
+            continue;
+        }
+
+        let name = format!("{}", oc.name);
+
+        let mut entries = vec![];
+        for rule in oc.iot_rules {
+            let msgs = rule.rule.into_iter().map(|r| r.iot_msg).collect();
+            entries.push(ParsedOneClickEntry {
+                topic: rule.device_obj.topic,
+                device: rule.device_obj.device,
+                msgs,
+            });
+        }
+
+        result.push(ParsedOneClick { name, entries });
+    }
+
     let iot = state
         .get_iot_client()
         .await
         .ok_or_else(|| anyhow::anyhow!("AWS IoT client is not available"))?;
 
-    iot.activate_one_click(&item).await
+    iot.activate_one_click(&result[0]).await
 }
 
 #[derive(Deserialize)]
