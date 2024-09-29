@@ -10,6 +10,7 @@ use crate::platform_api::{from_json, DeviceType};
 use crate::service::device::Device as ServiceDevice;
 use crate::service::state::StateHandle;
 use crate::temperature::TemperatureScale;
+use crate::undoc_api::{OneClickComponent, OneClickResponse, ParsedOneClick, ParsedOneClickEntry};
 use anyhow::Context;
 use async_channel::Receiver;
 use mosquitto_rs::router::{MqttRouter, Params, Payload, State};
@@ -446,7 +447,7 @@ async fn mqtt_diys(
         .await
         .ok_or_else(|| anyhow::anyhow!("Undoc API client is not available"))?;
 
-    let item = from_json(json)?;
+    let item: OneClickComponent = from_json(json)?;
 
     let mut result = vec![];
 
