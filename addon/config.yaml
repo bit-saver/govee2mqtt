@@ -1,6 +1,6 @@
 name: Govee to MQTT Bridge (bits)
 image: ghcr.io/bit-saver/govee2mqtt-{arch}
-version: "2024.09.29-9db5bf6a"
+version: "2024.09.29-bcc575f1"
 slug: govee2mqtt
 description: Control Govee Devices
 url: https://github.com/bit-saver/govee2mqtt
