@@ -1,6 +1,7 @@
 target
 .*sw?
 .env
+.idea
 docker-target
 node_modules
 package.json
