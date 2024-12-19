@@ -1,0 +1,60 @@
+{
+  "displayOrder": 1,
+  "componentId": 30754384,
+  "name": "Field Breeze",
+//  "planType": 0,
+//  "siriEngineId": 3217266,
+//  "presetId": 0,
+//  "groupName": "",
+//  "groupId": 0,
+//  "desc": "",
+//  "presetState": 0,
+//  "type": 0,
+  "actionType": 3,
+  "iotRules": [
+    {
+      "cmdGroup": 0,
+      "deviceObj": {
+//        "name": null,
+//        "sku": null,
+//        "device": null,
+//        "spec": null,
+//        "topic": null,
+//        "bleName": null,
+//        "bleAddress": null,
+//        "versionSoft": null,
+//        "versionHard": null,
+//        "wifiSoftVersion": null,
+//        "wifiHardVersion": null,
+//        "goodsType": null,
+//        "pactType": null,
+//        "pactCode": null,
+//        "subDevices": null,
+//        "ic": null,
+//        "ic_sub_1": null,
+//        "ic_sub_2": null,
+//        "subDevice": "",
+//        "settings": null,
+//        "feastId": 9541487,
+//        "feastName": "Main Scenic View",
+//        "feastType": 13,
+//        "isFeast": 1,
+//        "subDeviceNum": 0,
+//        "deviceSplicingStatus": 0,
+        "deviceInstallCount": 0
+      },
+      "rule": [
+        {
+//          "cmdType": 31,
+//          "deviceType": 0,
+//          "cmdVal": "{\n  \"voiceBtnOn\" : false,\n  \"twoSceneName\" : \"Field Breeze\",\n  \"feastId\" : 9541487,\n  \"feastVoiceCode\" : 0,\n  \"twoSceneId\" : 116\n}",
+//          "iotMsg": "",
+//          "blueMsg": "",
+          "effect": null
+        }
+      ]
+    }
+  ],
+//  "execRules": [],
+  "updateTime": 1734486530877
+}
