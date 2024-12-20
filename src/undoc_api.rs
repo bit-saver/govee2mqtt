@@ -629,6 +629,7 @@ pub struct OneClick {
     pub group_name: String,
     #[serde(default)]
     pub iot_rules: Vec<OneClickIotRule>,
+    pub action_type: i64,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -637,6 +638,7 @@ pub struct OneClick {
 pub struct OneClickIotRule {
     pub device_obj: OneClickIotRuleDevice,
     pub rule: Vec<OneClickIotRuleEntry>,
+    pub cmd_group: i64,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
