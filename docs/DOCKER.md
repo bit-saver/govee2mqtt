@@ -24,7 +24,7 @@ GOVEE_MQTT_PORT=1883
 #GOVEE_MQTT_PASSWORD=password
 
 # Specify the temperature scale to use, either C for Celsius
-# or F for Farenheit
+# or F for Fahrenheit
 GOVEE_TEMPERATURE_SCALE=C
 
 # Always use colorized output
@@ -40,9 +40,9 @@ TZ=America/Phoenix
 3. Set up your `docker-compose.yml`:
 
 ```yaml
-version: '3.8'
+name: govee2mqtt
 services:
-  pv2mqtt:
+  govee2mqtt:
     image: ghcr.io/wez/govee2mqtt:latest
     container_name: govee2mqtt
     restart: unless-stopped
@@ -50,6 +50,9 @@ services:
       - .env
     # Host networking is required
     network_mode: host
+# By default, a Docker volume will be used to persist data. If you prefer to mount this on your host, you can do so as follows:
+#    volumes:
+#      - '/path/to/data:/data'
 ```
 
 4. Launch it:

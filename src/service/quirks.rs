@@ -71,6 +71,10 @@ impl Quirk {
             .with_iot_api_support(true)
     }
 
+    pub fn ice_maker<SKU: Into<Cow<'static, str>>>(sku: SKU) -> Self {
+        Self::device(sku, DeviceType::IceMaker, "mdi:snowflake")
+    }
+
     pub fn space_heater<SKU: Into<Cow<'static, str>>>(sku: SKU) -> Self {
         Self::device(sku, DeviceType::Heater, "mdi:heat-wave")
     }
@@ -113,6 +117,11 @@ impl Quirk {
         self
     }
 
+    pub fn with_color_temp_range(mut self, min: u32, max: u32) -> Self {
+        self.color_temp_range = Some((min, max));
+        self
+    }
+
     pub fn with_lan_api(mut self) -> Self {
         self.lan_api_capable = true;
         self
@@ -151,12 +160,13 @@ const STRIP: &str = "mdi:led-strip-variant";
 const STRIP_ALT: &str = "mdi:led-strip";
 const FLOOD: &str = "mdi:light-flood-down";
 const STRING: &str = "mdi:string-lights";
-pub const BULB: &str = "mdi:light-bulb";
+pub const BULB: &str = "mdi:lightbulb";
 const FLOOR_LAMP: &str = "mdi:floor-lamp";
 const TV_BACK: &str = "mdi:television-ambient-light";
 const DESK: &str = "mdi:desk-lamp";
 const HEX: &str = "mdi:hexagon-multiple";
 const TRIANGLE: &str = "mdi:triangle";
+const CEILING: &str = "mdi:ceiling-light";
 const NIGHTLIGHT: &str = "mdi:lightbulb-night";
 const WALL_SCONCE: &str = "mdi:wall-sconce";
 const OUTDOOR_LAMP: &str = "mdi:outdoor-lamp";
@@ -165,6 +175,13 @@ const SPOTLIGHT: &str = "mdi:lightbulb-spot";
 fn load_quirks() -> HashMap<String, Quirk> {
     let mut map = HashMap::new();
     for quirk in [
+        // H60A1 Govee Ceiling Light has a color temperature range of 2200K - 6500K
+        // Without this quirk, the LAN API fallback reports (2000, 9000) which causes issues
+        // <https://github.com/wez/govee2mqtt/pull/502>
+        Quirk::lan_api_capable_light("H60A1", CEILING).with_color_temp_range(2200, 6500),
+        // Color temperature is more restrictive than the fallback range
+        // <https://github.com/wez/govee2mqtt/issues/511>
+        Quirk::lan_api_capable_light("H6022", BULB).with_color_temp_range(2700, 6500),
         Quirk::lan_api_capable_light("H610A", STRIP),
         // At the time of writing, the metadata
         // returned by Govee is completely bogus for this
@@ -176,6 +193,8 @@ fn load_quirks() -> HashMap<String, Quirk> {
         // device
         // <https://github.com/wez/govee2mqtt/issues/14#issuecomment-1880050091>
         Quirk::light("H6159", STRIP).with_broken_platform(),
+        // <https://github.com/wez/govee2mqtt/issues/152>
+        Quirk::light("H6003", BULB).with_broken_platform(),
         // <https://github.com/wez/govee2mqtt/issues/40#issuecomment-1889726710>
         // indicates that this one doesn't work like the others with IoT
         Quirk::light("H6121", STRIP).with_iot_api_support(false),
@@ -213,39 +232,51 @@ fn load_quirks() -> HashMap<String, Quirk> {
             .with_rgb()
             .with_brightness(),
         Quirk::space_heater("H7130")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit),
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit),
         Quirk::space_heater("H7131")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit)
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit)
             .with_show_as_preset_modes(&["gearMode"])
             .with_rgb()
             .with_brightness(),
         Quirk::space_heater("H713A")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit),
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit),
         Quirk::space_heater("H713B")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit),
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit),
         Quirk::space_heater("H7132")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit),
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit),
+        Quirk::space_heater("H7133")
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit)
+            .with_show_as_preset_modes(&["gearMode"])
+            .with_rgb()
+            .with_brightness(),
+        Quirk::space_heater("H7134")
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit)
+            .with_show_as_preset_modes(&["gearMode"])
+            .with_color_temp()
+            .with_brightness(),
         Quirk::space_heater("H7135")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit),
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit),
+        // <https://github.com/wez/govee2mqtt/issues/343>
+        Quirk::ice_maker("H7172").with_iot_api_support(false),
         Quirk::thermometer("H5051")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit)
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit)
             .with_platform_humidity_sensor_units(HumidityUnits::RelativePercent),
         Quirk::thermometer("H5100")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit)
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit)
             .with_platform_humidity_sensor_units(HumidityUnits::RelativePercent),
         Quirk::thermometer("H5103")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit)
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit)
             .with_platform_humidity_sensor_units(HumidityUnits::RelativePercent),
         Quirk::thermometer("H5179")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit)
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit)
             .with_platform_humidity_sensor_units(HumidityUnits::RelativePercent),
         Quirk::device("H7170", DeviceType::Kettle, "mdi:kettle")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit),
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit),
         Quirk::device("H7171", DeviceType::Kettle, "mdi:kettle")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit)
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit)
             .with_show_as_preset_modes(&["M1", "M2", "M3", "M4"]),
         Quirk::device("H7173", DeviceType::Kettle, "mdi:kettle")
-            .with_platform_temperature_sensor_units(TemperatureUnits::Farenheit)
+            .with_platform_temperature_sensor_units(TemperatureUnits::Fahrenheit)
             .with_show_as_preset_modes(&["Tea", "Coffee", "DIY"]),
         // Lights from the list of LAN API enabled devices
         // at <https://app-h5.govee.com/user-manual/wlan-guide>
@@ -300,6 +331,7 @@ fn load_quirks() -> HashMap<String, Quirk> {
         Quirk::lan_api_capable_light("H7042", STRING),
         Quirk::lan_api_capable_light("H7050", BULB),
         Quirk::lan_api_capable_light("H7051", BULB),
+        Quirk::lan_api_capable_light("H7052", STRING),
         Quirk::lan_api_capable_light("H7055", BULB),
         Quirk::lan_api_capable_light("H705A", OUTDOOR_LAMP),
         Quirk::lan_api_capable_light("H705B", OUTDOOR_LAMP),

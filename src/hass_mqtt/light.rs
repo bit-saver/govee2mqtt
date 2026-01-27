@@ -24,8 +24,6 @@ pub struct LightConfig {
     pub state_topic: String,
     pub optimistic: bool,
     pub supported_color_modes: Vec<String>,
-    /// Flag that defines if the light supports color modes.
-    pub color_mode: bool,
     /// Flag that defines if the light supports brightness.
     pub brightness: bool,
     /// Defines the maximum brightness value (i.e., 100%) of the MQTT device.
@@ -173,18 +171,15 @@ impl DeviceLight {
         };
 
         let mut supported_color_modes = vec![];
-        let mut color_mode = false;
 
         if segment.is_some() || device.supports_rgb() {
             supported_color_modes.push("rgb".to_string());
-            color_mode = true;
         }
 
         let (min_mireds, max_mireds) = if segment.is_some() {
             (None, None)
         } else if let Some((min, max)) = device.get_color_temperature_range() {
             supported_color_modes.push("color_temp".to_string());
-            color_mode = true;
             // Note that min and max are swapped by the translation
             // from kelvin to mired
             (Some(kelvin_to_mired(max)), Some(kelvin_to_mired(min)))
@@ -225,7 +220,6 @@ impl DeviceLight {
                 command_topic,
                 state_topic,
                 supported_color_modes,
-                color_mode,
                 brightness,
                 brightness_scale: 100,
                 effect: true,
