@@ -7,18 +7,6 @@ on:
   push:
     tags:
       - "20*"
-    branches:
-      - main
-    paths:
-      - "**/*.rs"
-      - "addon/**"
-      - "**/Cargo.*"
-      - ".github/workflows/build.yml"
-      - ".cargo/config.toml"
-      - "scripts/build-cross.sh"
-      - "scripts/build-docker.sh"
-      - "Dockerfile"
-      - ".dockerignore"
 
 env:
   IMAGE: ghcr.io/bit-saver/govee2mqtt
@@ -44,8 +32,7 @@ jobs:
         with:
           images: ${{ env.IMAGE }}
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-            type=ref,event=branch,enable=${{ github.ref != 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
             type=ref,event=pr
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -125,10 +112,8 @@ jobs:
         with:
           images: ${{ env.IMAGE }}
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-            type=ref,event=branch,enable=${{ github.ref != 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
             type=ref,event=tag,enable=${{ github.ref_type == 'tag' }}
-            type=ref,event=pr
       - name: Login to GHCR
         if: ${{ github.event_name != 'pull_request' }}
         uses: docker/login-action@v3
@@ -152,7 +137,7 @@ jobs:
     needs:
       - merge
     permissions:
-      contents: read
+      contents: write
       id-token: write
       packages: write
     steps:
@@ -173,9 +158,19 @@ jobs:
             --aarch64 \
             --cosign \
             --target /data/addon
+      - name: Push addon version to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B main
+          git add addon/config.yaml
+          if ! git diff --staged --quiet; then
+            git commit -m "Update addon version [skip ci]"
+            git push origin main
+          fi
 
   test-addon:
-    if: ${{ ! ( github.event_name == 'push' && github.ref_type == 'tag' ) }}
+    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     needs:
       # Note! Despite the dependency edge here to the build steps above,
