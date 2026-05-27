@@ -6,3 +6,7 @@ docker-target
 node_modules
 package.json
 package-lock.json
+# Added by code-review-graph
+.code-review-graph/
+.opencode.json
+.mcp.json
