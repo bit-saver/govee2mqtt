@@ -237,6 +237,10 @@ pub fn diys_topic() -> String {
     "gv2mqtt/diys".to_string()
 }
 
+pub fn scene_code_topic() -> String {
+    "gv2mqtt/scene-code".to_string()
+}
+
 #[derive(Deserialize)]
 pub struct IdParameter {
     pub id: String,
@@ -436,6 +440,35 @@ async fn mqtt_oneclick(
     iot.activate_one_click(&item).await
 }
 
+/// Accepts a scene-code + effectStr payload and sends it to a device via LAN
+/// using the same SetSceneCode encoding that preset scenes use. This enables
+/// GIF-based DIY playback from Otto's library without ptUrl domain whitelisting.
+///
+/// Payload: `{ "device": "<id>", "sceneCode": <u16>, "scenceParam": "<base64>" }`
+async fn mqtt_scene_code(
+    Payload(json): Payload<String>,
+    State(state): State<StateHandle>,
+) -> anyhow::Result<()> {
+    log::info!("mqtt_scene_code: {json}");
+
+    #[derive(serde::Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    struct SceneCodePayload {
+        device: String,
+        scene_code: u16,
+        scence_param: String,
+    }
+
+    let req: SceneCodePayload = serde_json::from_str(&json)?;
+    let device = state.resolve_device_for_control(&req.device).await?;
+
+    state
+        .device_set_scene_code(&device, req.scene_code, req.scence_param)
+        .await?;
+
+    Ok(())
+}
+
 async fn mqtt_diys(
     Payload(json): Payload<String>,
     State(state): State<StateHandle>,
@@ -576,6 +609,9 @@ async fn run_mqtt_loop(
 
         router.route(oneclick_topic(), mqtt_oneclick).await?;
         router.route(diys_topic(), mqtt_diys).await?;
+        router
+            .route(scene_code_topic(), mqtt_scene_code)
+            .await?;
         router.route(purge_cache_topic(), mqtt_purge_caches).await?;
         router
             .route(
