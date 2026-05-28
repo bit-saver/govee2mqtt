@@ -260,6 +260,20 @@ impl LanDevice {
         .await
     }
 
+    pub async fn set_scene_code(&self, scene_code: u16, scence_param: String) -> anyhow::Result<()> {
+        let encoded = Base64HexBytes::encode_for_sku(
+            "Generic:Light",
+            &SetSceneCode::new(scene_code, scence_param),
+        )?
+        .base64();
+        log::info!(
+            "sending scene-code {scene_code} ({} frames) to {:?}",
+            encoded.len(),
+            self.ip
+        );
+        self.send_real(encoded).await
+    }
+
     pub async fn set_scene_by_name(&self, scene_name: &str) -> anyhow::Result<()> {
         for category in GoveeUndocumentedApi::get_scenes_for_device(&self.sku).await? {
             for scene in category.scenes {

@@ -5,9 +5,9 @@ use anyhow::Context;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use axum::routing::get;
+use axum::routing::{get, post};
 use axum::{Json, Router};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::net::IpAddr;
 use tower_http::services::ServeDir;
 
@@ -225,6 +225,29 @@ async fn activate_one_click(
     Ok(response_with_code(StatusCode::OK, "ok"))
 }
 
+/// Accepts an arbitrary effectStr + scene_code and sends it to the device
+/// via LAN or IoT using the same SetSceneCode encoding that preset scenes use.
+/// This enables GIF-based DIY playback without Govee's big-command URL.
+#[derive(Deserialize)]
+struct SceneCodeBody {
+    scence_param: String,
+}
+
+async fn device_set_scene_code(
+    State(state): State<StateHandle>,
+    Path((id, code)): Path<(String, u16)>,
+    Json(body): Json<SceneCodeBody>,
+) -> Result<Response, Response> {
+    let device = resolve_device_for_control(&state, &id).await?;
+
+    state
+        .device_set_scene_code(&device, code, body.scence_param)
+        .await
+        .map_err(generic)?;
+
+    Ok(response_with_code(StatusCode::OK, "ok"))
+}
+
 async fn redirect_to_index() -> Response {
     axum::response::Redirect::to("/assets/index.html").into_response()
 }
@@ -244,6 +267,10 @@ fn build_router(state: StateHandle) -> Router {
         )
         .route("/api/device/{id}/color/{color}", get(device_set_color))
         .route("/api/device/{id}/scene/{scene}", get(device_set_scene))
+        .route(
+            "/api/device/{id}/scene-code/{code}",
+            post(device_set_scene_code),
+        )
         .route("/api/device/{id}/scenes", get(device_list_scenes))
         .route("/api/oneclicks", get(list_one_clicks))
         .route("/api/oneclick/activate/{scene}", get(activate_one_click))
