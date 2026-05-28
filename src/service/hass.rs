@@ -237,8 +237,8 @@ pub fn diys_topic() -> String {
     "gv2mqtt/diys".to_string()
 }
 
-pub fn scene_code_topic() -> String {
-    "gv2mqtt/scene-code".to_string()
+pub fn diy_code_topic() -> String {
+    "gv2mqtt/diy-code".to_string()
 }
 
 #[derive(Deserialize)]
@@ -445,11 +445,11 @@ async fn mqtt_oneclick(
 /// GIF-based DIY playback from Otto's library without ptUrl domain whitelisting.
 ///
 /// Payload: `{ "device": "<id>", "sceneCode": <u16>, "scenceParam": "<base64>" }`
-async fn mqtt_scene_code(
+async fn mqtt_diy_code(
     Payload(json): Payload<String>,
     State(state): State<StateHandle>,
 ) -> anyhow::Result<()> {
-    log::info!("mqtt_scene_code: {json}");
+    log::info!("mqtt_diy_code: {json}");
 
     #[derive(serde::Deserialize)]
     #[serde(rename_all = "camelCase")]
@@ -610,7 +610,7 @@ async fn run_mqtt_loop(
         router.route(oneclick_topic(), mqtt_oneclick).await?;
         router.route(diys_topic(), mqtt_diys).await?;
         router
-            .route(scene_code_topic(), mqtt_scene_code)
+            .route(diy_code_topic(), mqtt_diy_code)
             .await?;
         router.route(purge_cache_topic(), mqtt_purge_caches).await?;
         router

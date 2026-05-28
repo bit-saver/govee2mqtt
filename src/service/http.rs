@@ -233,7 +233,7 @@ struct SceneCodeBody {
     scence_param: String,
 }
 
-async fn device_set_scene_code(
+async fn device_set_diy_code(
     State(state): State<StateHandle>,
     Path((id, code)): Path<(String, u16)>,
     Json(body): Json<SceneCodeBody>,
@@ -268,8 +268,8 @@ fn build_router(state: StateHandle) -> Router {
         .route("/api/device/{id}/color/{color}", get(device_set_color))
         .route("/api/device/{id}/scene/{scene}", get(device_set_scene))
         .route(
-            "/api/device/{id}/scene-code/{code}",
-            post(device_set_scene_code),
+            "/api/device/{id}/diy-code/{code}",
+            post(device_set_diy_code),
         )
         .route("/api/device/{id}/scenes", get(device_list_scenes))
         .route("/api/oneclicks", get(list_one_clicks))
