@@ -655,18 +655,7 @@ impl State {
             return Ok(());
         }
 
-        if let Some(iot) = self.get_iot_client().await {
-            log::info!("Using IoT to send scene-code {scene_code} to {device}");
-            let encoded = crate::ble::Base64HexBytes::encode_for_sku(
-                "Generic:Light",
-                &crate::ble::SetSceneCode::new(scene_code, scence_param),
-            )?
-            .base64();
-            iot.send_real(device, encoded).await?;
-            return Ok(());
-        }
-
-        anyhow::bail!("No LAN or IoT transport available for {device}");
+        anyhow::bail!("LAN device not available for {device} — scene-code requires LAN transport");
     }
 
     pub async fn device_set_scene(
