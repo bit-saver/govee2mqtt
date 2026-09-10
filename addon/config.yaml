@@ -22,7 +22,9 @@ webui: http://[HOST]:[PORT:8056]/assets/index.html
 host_network: true
 
 map:
-  - type: addon_config
+  # Renamed from the legacy `addon_config` in supervisor 2026.07.
+  # Requires Home Assistant supervisor >= 2026.07.
+  - type: app_config
     read_only: false
     path: /app/config
 
