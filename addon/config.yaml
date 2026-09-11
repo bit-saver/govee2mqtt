@@ -21,13 +21,6 @@ webui: http://[HOST]:[PORT:8056]/assets/index.html
 # Host network access is required for LAN discovery
 host_network: true
 
-map:
-  # Renamed from the legacy `addon_config` in supervisor 2026.07.
-  # Requires Home Assistant supervisor >= 2026.07.
-  - type: app_config
-    read_only: false
-    path: /app/config
-
 options:
   temperature_scale: "C"
 
